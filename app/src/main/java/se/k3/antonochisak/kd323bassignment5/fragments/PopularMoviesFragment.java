@@ -54,6 +54,8 @@ public class PopularMoviesFragment extends Fragment
     Firebase mFireBase;
     Firebase mRef;
 
+
+    
     String mCurrentClickedMovie = "";
 
     CountDownTimer mVoteTimer;
