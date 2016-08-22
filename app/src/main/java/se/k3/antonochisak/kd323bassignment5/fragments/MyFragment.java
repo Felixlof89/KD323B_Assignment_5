@@ -1,14 +1,16 @@
 package se.k3.antonochisak.kd323bassignment5.fragments;
 
-import android.app.Fragment;
+
 import android.os.Bundle;
+import android.app.Fragment;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -28,8 +30,10 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import se.k3.antonochisak.kd323bassignment5.R;
-import se.k3.antonochisak.kd323bassignment5.adapters.TrendingMoviesAdapter;
+import se.k3.antonochisak.kd323bassignment5.adapters.MyAdapter;
+import se.k3.antonochisak.kd323bassignment5.adapters.PopularMoviesAdapter;
 import se.k3.antonochisak.kd323bassignment5.api.RestClient;
+import se.k3.antonochisak.kd323bassignment5.api.model.ApiResponse;
 import se.k3.antonochisak.kd323bassignment5.api.model.RootApiResponse;
 import se.k3.antonochisak.kd323bassignment5.models.movie.Movie;
 
@@ -37,10 +41,14 @@ import static se.k3.antonochisak.kd323bassignment5.helpers.StaticHelpers.FIREBAS
 import static se.k3.antonochisak.kd323bassignment5.helpers.StaticHelpers.FIREBASE_URL;
 
 /**
- * Created by Hans on 2015-04-29.
+ * A simple {@link Fragment} subclass.
  */
-public class TrendingMoviesFragment extends Fragment
-        implements Callback<List<RootApiResponse>>, AdapterView.OnItemClickListener {
+public class MyFragment extends MoviesFragment
+        implements GridView.OnItemClickListener {
+
+    public MyFragment() {
+        // Required empty public constructor
+    }
 
     // List of movies
     ArrayList<Movie> mMovies;
@@ -57,12 +65,12 @@ public class TrendingMoviesFragment extends Fragment
     CountDownTimer mVoteTimer;
     boolean mIsVoteTimerRunning = false;
 
-    TrendingMoviesAdapter mAdapter;
+    MyAdapter mAdapter;
 
-    @InjectView(R.id.trendingListView)
-    ListView mMoviesList;
+    @InjectView(R.id.new_gridView)
+    GridView mMoviesGrid;
 
-    @InjectView(R.id.progress_bar)
+    @InjectView(R.id.new_progress_bar)
     ProgressBar mProgressBar;
 
     @Override
@@ -79,18 +87,16 @@ public class TrendingMoviesFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_trending_movies, container, false);
+        View view = inflater.inflate(R.layout.fragment_my, container, false);
         // Inject views
         ButterKnife.inject(this, view);
 
         // Create adapter
-        mAdapter = new TrendingMoviesAdapter(mMovies, getActivity().getLayoutInflater());
-        mMoviesList.setAdapter(mAdapter);
+        mAdapter = new MyAdapter(mMovies, getActivity().getLayoutInflater());
+        mMoviesGrid.setAdapter(mAdapter);
 
         // listener= GridView.OnItemClickListener
-        mMoviesList.setOnItemClickListener(this);
-
-
+        mMoviesGrid.setOnItemClickListener(this);
         return view;
     }
 
@@ -101,15 +107,15 @@ public class TrendingMoviesFragment extends Fragment
 
         // listener = Callback<List<ApiResponse>>
         // go to http://docs.trakt.apiary.io/#introduction/extended-info, what should you include?
-        mRestClient.getApiService().getTrending("images", this);
+        mRestClient.getApiService().getTrending("full,images", this);
         mProgressBar.setVisibility(View.VISIBLE);
         initVoteTimer();
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         if (!mIsVoteTimerRunning) {
-            voteOnMovie(position);
+            voteOnMovie(i);
             mVoteTimer.start();
             mIsVoteTimerRunning = true;
         }
@@ -170,6 +176,7 @@ public class TrendingMoviesFragment extends Fragment
         });
     }
 
+
     @Override
     public void success(List<RootApiResponse> apiResponses, Response response) {
         mProgressBar.setVisibility(View.GONE);
@@ -182,8 +189,10 @@ public class TrendingMoviesFragment extends Fragment
                     .poster(r.apiResponse.image.getPoster().getMediumPoster())
                     .fanArt(r.apiResponse.image.getFanArt().getFullFanArt())
                     .year(r.apiResponse.year)
+                    .overview(r.apiResponse.overview)
+                    .tagline(r.apiResponse.tagline)
                     .build();
-
+            Log.i("Success", "Added item!" + r.apiResponse.title);
             mMovies.add(movie);
             mAdapter.notifyDataSetChanged();
         }
@@ -198,5 +207,4 @@ public class TrendingMoviesFragment extends Fragment
                     .show();
         }
     }
-
 }

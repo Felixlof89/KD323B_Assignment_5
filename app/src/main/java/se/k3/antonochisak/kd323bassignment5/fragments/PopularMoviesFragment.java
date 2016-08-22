@@ -54,8 +54,6 @@ public class PopularMoviesFragment extends Fragment
     Firebase mFireBase;
     Firebase mRef;
 
-
-    
     String mCurrentClickedMovie = "";
 
     CountDownTimer mVoteTimer;
@@ -144,10 +142,11 @@ public class PopularMoviesFragment extends Fragment
         mMovieMap.put("poster", movie.getPoster());
         mMovieMap.put("fanart", movie.getFanArt());
 
+
         mRef.child(mCurrentClickedMovie).updateChildren(mMovieMap, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                Toast.makeText(getActivity(), "Gillade " + mMovies.get(i).getTitle(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Liked " + mMovies.get(i).getTitle(), Toast.LENGTH_SHORT).show();
                 updateVotes();
             }
         });

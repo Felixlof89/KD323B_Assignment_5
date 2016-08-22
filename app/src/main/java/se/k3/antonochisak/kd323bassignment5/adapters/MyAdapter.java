@@ -17,44 +17,33 @@ import se.k3.antonochisak.kd323bassignment5.R;
 import se.k3.antonochisak.kd323bassignment5.helpers.StaticHelpers;
 import se.k3.antonochisak.kd323bassignment5.models.movie.Movie;
 
-/**
- * Created by Hans on 2015-04-29.
- */
-public class TrendingMoviesAdapter extends BaseAdapter{
+
+public class MyAdapter
+        extends BaseAdapter {
 
     ArrayList<Movie> mMovies;
     LayoutInflater mLayoutInflater;
     private int mItemWidth, mItemHeight, mMargin;
 
-
-
-    public TrendingMoviesAdapter(ArrayList<Movie> mMovies, LayoutInflater lI) {
-
+    public MyAdapter(ArrayList<Movie> mMovies, LayoutInflater mLayoutInflater) {
         this.mMovies = mMovies;
-        this.mLayoutInflater = lI;
+        this.mLayoutInflater = mLayoutInflater;
     }
 
     // We always use a viewholder pattern on listviews!
     class ViewHolder {
-        @InjectView(R.id.my_poster)
+        @InjectView(R.id.poster)
         ImageView poster;
-
-        @InjectView(R.id.text_title)
-        TextView title;
-
-        @InjectView(R.id.text_year)
-        TextView year;
 
         public ViewHolder(View view) {
             ButterKnife.inject(this, view);
 
             int screenWidth = StaticHelpers.getScreenWidth(view.getContext());
-            mItemWidth = (screenWidth / 2);
+            mItemWidth = (screenWidth / 3);
             mItemHeight = (int) ((double) mItemWidth / 0.677);
             mMargin = StaticHelpers.getPixelsFromDp(view.getContext(), 2);
         }
     }
-
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
@@ -67,22 +56,19 @@ public class TrendingMoviesAdapter extends BaseAdapter{
             holder = (ViewHolder) view.getTag();
         }
 
-        Movie movie = mMovies.get(i);
-        String title = String.valueOf(movie.getTitle());
-        String year = String.valueOf(movie.getYear());
-
-        holder.title.setText(title);
-        holder.year.setText(year);
-
-
         // Load pictures with picasso
         Picasso.with(view.getContext())
                 .load(mMovies.get(i).getPoster())
                 .resize(mItemWidth, mItemHeight)
                 .into(holder.poster);
+
+
+        //Sets the year the film was made
+        TextView movieTitle = (TextView) view.findViewById(R.id.movie_title);
+        movieTitle.setText(String.valueOf(mMovies.get(i).getYear()));
+
         return view;
     }
-
 
     @Override
     public int getCount() {
